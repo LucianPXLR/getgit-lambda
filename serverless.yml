@@ -1,0 +1,97 @@
+# NOTE: update this with your service name
+service: getgit-lambda
+
+# Use the serverless-webpack plugin to transpile ES6
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+# serverless-webpack configuration
+# Enable auto-packing of external modules
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: eu-west-1
+  # To load environment variables externally
+  # rename env.example to env.yml and uncomment
+  # the following line. Also, make sure to not
+  # commit your env.yml.
+  #
+  #environment: ${file(env.yml):${self:provider.stage}}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+      Resource: "arn:aws:s3:::getgit-deploykeys/*"
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:DeleteObject
+        - s3:ListBucket
+      Resource:
+        - "arn:aws:s3:::getgit-source/*"
+        - "arn:aws:s3:::getgit-source"
+
+# Add CORS to 4XX and 5XX responses
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+          gatewayresponse.header.Cache-Control: "'no-cache, no-store, must-revalidate'"
+          gatewayresponse.header.Pragma: "'no-cache'"
+          gatewayresponse.header.Expires: "'0'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+    GatewayResponseDefault5XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+          gatewayresponse.header.Cache-Control: "'no-cache, no-store, must-revalidate'"
+          gatewayresponse.header.Pragma: "'no-cache'"
+          gatewayresponse.header.Expires: "'0'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+
+functions:
+  getgit:
+    handler: handler.getGit
+    layers:
+      - "arn:aws:lambda:eu-west-1:553035198032:layer:git:3"
+    environment:
+      DEPLOYKEYS_BUCKET: "getgit-deploykeys"
+      GIT_HOST: "github.com"
+      GIT_REPOSITORY: "git@github.com:silviulucian/getgit-lambda.git"
+      GIT_BRANCH: "master"
+      SOURCE_BUCKET: "getgit-source"
+    events:
+      - http:
+          path: getgit
+          method: post
+          cors: true
+          authorizer:
+            name: getgitauth
+            identitySource: method.request.querystring.jaffa
+            identityValidationExpression: .*
+            type: request
+  getgitauth:
+    handler: handler.getGitAuthorizer

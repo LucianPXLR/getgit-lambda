@@ -1,0 +1,9 @@
+{
+  "httpMethod": "POST",
+  "queryStringParameters": {
+    "jaffa": "kree"
+  },
+  "body": "{\"before\":\"8e7c034584ece2f9dd55575ae1c9a82ab82ab01c\",\"after\":\"20490f07fb4fb59e9b8412c00922ff5618c91b0b\",\"ref\":\"refs/heads/master\",\"user_id\":5798,\"user_name\":\"Lucian Vacaroiu\",\"project_id\":9864,\"repository\":{\"name\":\"node-3tier-app\",\"url\":\"git@git.toptal.com:silviulucian/node-3tier-app.git\",\"description\":\"\",\"homepage\":\"https://git.toptal.com/silviulucian/node-3tier-app\"},\"commits\":[{\"id\":\"20490f07fb4fb59e9b8412c00922ff5618c91b0b\",\"message\":\"foo\",\"timestamp\":\"2018-12-30T16:13:29-05:00\",\"url\":\"https://git.toptal.com/silviulucian/node-3tier-app/commit/20490f07fb4fb59e9b8412c00922ff5618c91b0b\",\"author\":{\"name\":\"Lucian Văcăroiu\",\"email\":\"silviulucian@gmail.com\"}}],\"total_commits_count\":1}",
+  "requestContext": {
+  }
+}
